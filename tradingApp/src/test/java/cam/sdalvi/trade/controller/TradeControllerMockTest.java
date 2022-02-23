@@ -35,8 +35,7 @@ public class TradeControllerMockTest {
     @MockBean
     private PositionBookService mockPositionBookService;
 
-    private List<TradeData> tradeRequestList;
-    private List<TradeResponse> tradeResponseList;
+     private List<TradeResponse> tradeResponseList;
 
     @BeforeEach
     void setUp() {
@@ -56,7 +55,7 @@ public class TradeControllerMockTest {
 
         Mockito.when(mockPositionBookService.addTrade(inputTradeRequestList)).thenReturn(tradeResponseList);
 
-        MvcResult result = mockMvc.perform(post("/trade/bookPositions")
+        mockMvc.perform(post("/trade/bookPositions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\n" +
                                 "      {\n" +
@@ -76,23 +75,23 @@ public class TradeControllerMockTest {
                                 "    ]"))
 
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.*", hasSize(0)))
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.jsonPath("$.*", hasSize(0)));
+                
 
 
     }
     
     
     @Test
-    @DisplayName("Validate Mock Buy Trades for same account & security")
-    public void testBookPositionException() throws Exception {
+    @DisplayName("Validate Mock Buy Trades With Invalid TrdeType")
+    public void testBookPositionWithInvalidTrdeType() throws Exception {
         List<TradeData> inputTradeRequestList = Arrays.asList(new TradeData(1L, "INVALID_TRDE_TYPE", "ACC1", "STK1", 100),
                 new TradeData(1L, "BUY", "ACC1", "STK1", 100),
                 new TradeData(2L, "BUY", "ACC1", "STK1", 500));
 
         Mockito.when(mockPositionBookService.addTrade(inputTradeRequestList)).thenReturn(tradeResponseList);
 
-        MvcResult result = mockMvc.perform(post("/trade/bookPositions")
+        mockMvc.perform(post("/trade/bookPositions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[\n" +
                                 "      {\n" +
@@ -111,8 +110,42 @@ public class TradeControllerMockTest {
                                 "      }\n" +
                                 "    ]"))
 
-                .andExpect(status().isBadRequest())
-                .andReturn();
+                .andExpect(status().isBadRequest());
+                
+
+
+    }
+    
+    @Test
+    @DisplayName("Validate Mock Buy Trades With blank Account")
+    public void testBookPositionWithInvalidAccount() throws Exception {
+        List<TradeData> inputTradeRequestList = Arrays.asList(new TradeData(1L, "INVALID_TRDE_TYPE", "ACC1", "STK1", 100),
+                new TradeData(1L, "BUY", "ACC1", "STK1", 100),
+                new TradeData(2L, "BUY", "ACC1", "STK1", 500));
+
+        Mockito.when(mockPositionBookService.addTrade(inputTradeRequestList)).thenReturn(tradeResponseList);
+
+        mockMvc.perform(post("/trade/bookPositions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[\n" +
+                                "      {\n" +
+                                "        \"tradeId\": \"1\",\n" +
+                                "        \"tradeType\": \"BUY\",\n" +
+                                "        \"account\": \"\",\n" +
+                                "\t\"securityCode\": \"STK1\",\n" +
+                                "        \"securityCount\": \"1000\"\n" +
+                                "      },\n" +
+                                "      {\n" +
+                                "        \"tradeId\": \"2\",\n" +
+                                "        \"tradeType\": \"BUY\",\n" +
+                                "        \"account\": \"ACC1\",\n" +
+                                "\t\"securityCode\": \"STK1\",\n" +
+                                "        \"securityCount\": \"300\"\n" +
+                                "      }\n" +
+                                "    ]"))
+
+                .andExpect(status().isBadRequest());
+                
 
 
     }
