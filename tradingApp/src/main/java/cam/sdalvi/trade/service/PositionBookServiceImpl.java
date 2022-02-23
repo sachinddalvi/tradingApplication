@@ -1,20 +1,24 @@
 package cam.sdalvi.trade.service;
 
-import cam.sdalvi.trade.dto.TradeData;
-import cam.sdalvi.trade.dto.TradeResponse;
-import cam.sdalvi.trade.exceptions.InvalidTradeException;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cam.sdalvi.trade.dao.PositionBook;
+import cam.sdalvi.trade.dto.TradeData;
+import cam.sdalvi.trade.dto.TradeResponse;
+import cam.sdalvi.trade.exceptions.InvalidTradeException;
+
 @Service
 public class PositionBookServiceImpl implements PositionBookService {
 
 
-    private static final List<TradeResponse> CachedtradeResponseList = new ArrayList<TradeResponse>();
+	@Autowired
+    PositionBook potionBook;
     List<TradeResponse> tradeResponseList;
     Map<String, List<TradeData>> groupByTradeType;
     Map<String, Map<String, List<TradeData>>> groupByAccountAndSecurity;
@@ -52,7 +56,7 @@ public class PositionBookServiceImpl implements PositionBookService {
                                 tradeResponse.setTradeDataList(e);
                             });
                             tradeResponseList.add(tradeResponse);
-                            CachedtradeResponseList.add(tradeResponse);
+                            potionBook.getCachedtraderesponselist().add(tradeResponse);
                         } else if (e.size() == 1) {
                             tradeResponse.setTradeDataList(e);
                             e.stream().forEach((e1) -> {
@@ -60,7 +64,7 @@ public class PositionBookServiceImpl implements PositionBookService {
                                 tradeResponse.setAccount(e1.getAccount());
                                 tradeResponse.setSecurityCode(e1.getSecurityCode());
                                 tradeResponseList.add(tradeResponse);
-                                CachedtradeResponseList.add(tradeResponse);
+                                potionBook.getCachedtraderesponselist().add(tradeResponse);
                                 System.out.println(e);
                             });
                         }
